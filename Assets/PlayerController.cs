@@ -22,6 +22,18 @@ public class PlayerController : MonoBehaviour
     private void OnEnable()
     {
         controls.Enable();
+        PlayerInteraction.OnPCClicked += DisablePlayerControls;
+    }
+
+    private void OnDisable()
+    {
+        controls.Disable();
+        PlayerInteraction.OnPCClicked -= DisablePlayerControls;
+    }
+
+    void DisablePlayerControls()
+    {
+        controls.Disable();
     }
 
     void PlayerInput()
@@ -69,4 +81,5 @@ public class PlayerController : MonoBehaviour
     {
         Move();
     }
+
 }
