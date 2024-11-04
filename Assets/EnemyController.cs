@@ -1,12 +1,12 @@
 using UnityEngine;
 
-public class PlayerController : MonoBehaviour
+public class EnemyController : MonoBehaviour
 {
     Vector2 movement;
-    PlayerControls controls;
+    Vector2 idlePosition;
 
     Animator animator;
-    Vector2 idlePosition;
+
     Rigidbody2D rb;
     [SerializeField]
     float moveSpeed = 1f;
@@ -15,39 +15,6 @@ public class PlayerController : MonoBehaviour
     {
         animator = GetComponent<Animator>();
         rb = GetComponent<Rigidbody2D>();
-        controls = new PlayerControls();
-    }
-
-    private void OnEnable()
-    {
-        controls.Enable();
-        PlayerInteraction.OnPCClicked += DisablePlayerControls;
-    }
-
-    private void OnDisable()
-    {
-        controls.Disable();
-        PlayerInteraction.OnPCClicked -= DisablePlayerControls;
-    }
-
-    void DisablePlayerControls()
-    {
-        controls.Disable();
-    }
-
-    void PlayerInput()
-    {
-        movement = controls.Player.Movement.ReadValue<Vector2>();
-        if (movement == Vector2.zero)
-        {
-            AnimateIdle();
-        }
-        else
-        {
-            AnimateMovement();
-            // Idle position is the movement last frame if the player moved
-            idlePosition = movement;
-        }
     }
 
     private void Move()
@@ -71,14 +38,23 @@ public class PlayerController : MonoBehaviour
         animator.SetFloat("VerticalIdle", idlePosition.y);
     }
 
-    private void Update()
-    {
-        PlayerInput();
-    }
-
     private void FixedUpdate()
     {
         Move();
     }
 
+    public void Movement(Vector2 movementVector)
+    {
+        movement = movementVector;
+        if (movement == Vector2.zero)
+        {
+            AnimateIdle();
+        }
+        else
+        {
+            AnimateMovement();
+            // Idle position is the movement last frame if the player moved
+            idlePosition = movement;
+        }
+    }
 }

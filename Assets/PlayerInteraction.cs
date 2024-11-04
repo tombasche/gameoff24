@@ -6,11 +6,17 @@ public class PlayerInteraction : MonoBehaviour
     [SerializeField]
     bool inFrontOfPC = false;
 
+    [SerializeField]
+    AudioClip startPCSound;
+
+    AudioSource audioSource;
+
     PlayerControls playerControls;
 
     public static event Action OnPCClicked;
     private void Awake()
     {
+        audioSource = GetComponent<AudioSource>();
         playerControls = new PlayerControls();
     }
 
@@ -44,6 +50,7 @@ public class PlayerInteraction : MonoBehaviour
     {
         if (inFrontOfPC && playerControls.Player.Interact.WasPressedThisFrame())
         {
+            audioSource.PlayOneShot(startPCSound);
             OnPCClicked?.Invoke();
         }
     }
