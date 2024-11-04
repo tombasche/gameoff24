@@ -9,6 +9,9 @@ public class CameraControl : MonoBehaviour
     [SerializeField]
     private CinemachineCamera pcCamera;
 
+    [SerializeField]
+    private CinemachineCamera enemyCamera;
+
     private void OnEnable()
     {
         PlayerInteraction.OnPCClicked += ZoomCameraToPC;
@@ -30,6 +33,12 @@ public class CameraControl : MonoBehaviour
     {
         mainCamera.Priority = 1;
         pcCamera.Priority = 0;
+    }
+
+    public void ZoomToEnemy()
+    {
+        enemyCamera.Priority = 1;
+        mainCamera.Priority = 0;
     }
 
 

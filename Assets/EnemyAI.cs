@@ -1,4 +1,7 @@
+using System.Runtime.ExceptionServices;
+using JetBrains.Annotations;
 using UnityEngine;
+using UnityEngine.Audio;
 
 public class EnemyAI : MonoBehaviour
 {
@@ -17,9 +20,37 @@ public class EnemyAI : MonoBehaviour
     [SerializeField]
     float distanceToNodeThreshold = 0.12f;
 
+    [SerializeField]
+    float viewDistance = 10f;
+
+    [SerializeField]
+    Transform exclamationMark;
+
+    [SerializeField]
+    AudioClip alarmSound;
+
+    AudioSource audioSource;
+
+    bool runningAnimation = false;
+    Animator animator;
+
+    public enum State
+    {
+        Patrolling,
+        SeeingPlayer,
+        SpottedPlayer,
+        Panicking,
+    }
+
+    [SerializeField]
+    State state;
+
     private void Awake()
     {
+        state = State.Patrolling;
         controller = GetComponent<EnemyController>();
+        animator = GetComponent<Animator>();
+        audioSource = GetComponent<AudioSource>();
         SetInitialPositionToFirstNode();
     }
 
@@ -35,32 +66,8 @@ public class EnemyAI : MonoBehaviour
 
     private void Update()
     {
-        // Move from one node to the next pausing for nodePauseTime
-        // Calculate the movement to the next node in terms of x=(-1,1) & y=(-1,1)
-        Vector3 currentNode = movementNodes[currentNodeIdx].position;
-        Vector3 nextNode = NextNode(currentNodeIdx);
-
-        if (IsCloseToPosition(nextNode))
-        {
-            controller.Movement(Vector2.zero);
-            pauseTimer += Time.deltaTime;
-
-            if (pauseTimer >= nodePauseTime)
-            {
-                pauseTimer = 0f;
-                currentNodeIdx = NextNodeIdx(currentNodeIdx);
-            }
-        }
-        else
-        {
-            Vector2 difference = (nextNode - currentNode).normalized;
-            controller.Movement(difference);
-        }
-
-        if (CanSeePlayer())
-        {
-            Debug.Log("gotcha!");
-        }
+        HandleState();
+        LookForPlayer();
     }
 
     int NextNodeIdx(int currentNode)
@@ -84,8 +91,65 @@ public class EnemyAI : MonoBehaviour
     bool IsCloseToPosition(Vector3 position) => 
         Vector3.Distance(transform.position, position) <= distanceToNodeThreshold;
 
-    bool CanSeePlayer()
+    void LookForPlayer()
     {
-        return false;
+        if (state == State.Patrolling)
+        {
+            var ray = controller.FacingDirection() * viewDistance;
+            Debug.DrawRay(transform.position, ray, Color.red);
+            var hit = Physics2D.Raycast(transform.position, ray, viewDistance);
+            if (hit.transform.CompareTag("Player"))
+            {
+                audioSource.PlayOneShot(alarmSound);
+                state = State.SeeingPlayer;
+            }
+        }
+    }
+
+    void HandleState()
+    {
+        if (state == State.Patrolling)
+        {
+            exclamationMark.gameObject.SetActive(false);
+            Vector3 currentNode = movementNodes[currentNodeIdx].position;
+            Vector3 nextNode = NextNode(currentNodeIdx);
+
+            if (IsCloseToPosition(nextNode))
+            {
+                controller.Movement(Vector2.zero);
+                pauseTimer += Time.deltaTime;
+
+                if (pauseTimer >= nodePauseTime)
+                {
+                    pauseTimer = 0f;
+                    currentNodeIdx = NextNodeIdx(currentNodeIdx);
+                }
+            }
+            else
+            {
+                Vector2 difference = (nextNode - currentNode).normalized;
+                controller.Movement(difference);
+            }
+        }
+
+        if (state == State.SeeingPlayer)
+        {
+            state = State.SpottedPlayer;
+            exclamationMark.gameObject.SetActive(true);
+            controller.Movement(Vector2.zero);
+        }
+
+        if (state == State.SpottedPlayer)
+        {
+            FindFirstObjectByType<CameraControl>().ZoomToEnemy();
+            state = State.Panicking;
+        }
+
+        if (state == State.Panicking && !runningAnimation)
+        {
+            runningAnimation = true;
+            animator.SetTrigger("Surprised");
+            FindFirstObjectByType<LevelManager>().LostLevel();
+        }
     }
 }

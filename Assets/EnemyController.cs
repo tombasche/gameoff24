@@ -57,4 +57,9 @@ public class EnemyController : MonoBehaviour
             idlePosition = movement;
         }
     }
+
+    public Vector3 FacingDirection()
+    {
+        return idlePosition;
+    }
 }
