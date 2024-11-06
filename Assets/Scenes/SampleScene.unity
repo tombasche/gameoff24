@@ -717,7 +717,7 @@ MonoBehaviour:
     m_Bits: 1
   m_VolumeTrigger: {fileID: 0}
   m_VolumeFrameworkUpdateModeOption: 2
-  m_RenderPostProcessing: 0
+  m_RenderPostProcessing: 1
   m_Antialiasing: 0
   m_AntialiasingQuality: 2
   m_StopNaN: 0
@@ -1147,7 +1147,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 87216ffcbceb8f542be6636324fb0fba, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  fadeOutTime: 5
 --- !u!82 &1160427411
 AudioSource:
   m_ObjectHideFlags: 0

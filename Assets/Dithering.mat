@@ -37,12 +37,12 @@ Material:
         m_Offset: {x: 0, y: 0}
     m_Ints: []
     m_Floats:
-    - _BrightenAmount: 0.8
+    - _BrightenAmount: 1.5
     - _DitherBlend: 0.3
-    - _DitherResolution: 1
+    - _DitherResolution: 3
     - _ScreenWarpAmount: 0
     - _T: 0
-    - _TotalBlendAmount: 0.6
+    - _TotalBlendAmount: 0.5
     m_Colors:
     - _DitherCoords: {r: 1920, g: 1080, b: 0, a: 0}
   m_BuildTextureStacks: []
