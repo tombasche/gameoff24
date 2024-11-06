@@ -35,8 +35,9 @@ public class CameraControl : MonoBehaviour
         pcCamera.Priority = 0;
     }
 
-    public void ZoomToEnemy()
+    public void ZoomToEnemy(Transform enemy)
     {
+        enemyCamera.Follow = enemy;
         enemyCamera.Priority = 1;
         mainCamera.Priority = 0;
     }

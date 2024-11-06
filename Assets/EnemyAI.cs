@@ -141,7 +141,7 @@ public class EnemyAI : MonoBehaviour
 
         if (state == State.SpottedPlayer)
         {
-            FindFirstObjectByType<CameraControl>().ZoomToEnemy();
+            FindFirstObjectByType<CameraControl>().ZoomToEnemy(transform);
             state = State.Panicking;
         }
 

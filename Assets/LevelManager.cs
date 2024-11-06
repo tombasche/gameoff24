@@ -26,7 +26,7 @@ public class LevelManager : MonoBehaviour
 
     public void WonLevel()
     {
-
+        StartCoroutine(LoadNextLevel());
     }
 
     IEnumerator RestartLevel()
@@ -34,6 +34,18 @@ public class LevelManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
         fadeOut.TriggerFadeOut();
         yield return new WaitForSeconds(1f);
+        SceneManager.LoadScene(0);
+    }
+
+    IEnumerator LoadNextLevel()
+    {
+        yield return new WaitForSeconds(1f);
+        // Play victory sound
+        fadeOut.TriggerFadeOut();
+        yield return new WaitForSeconds(1f);
+        
+        // TODO check if last level and get next scene
+        // int currentScene = SceneManager.GetActiveScene().buildIndex;
         SceneManager.LoadScene(0);
     }
 }
