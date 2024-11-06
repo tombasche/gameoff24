@@ -136,6 +136,9 @@ MonoBehaviour:
   viewDistance: 10
   exclamationMark: {fileID: 4457888412420096229}
   alarmSound: {fileID: 8300000, guid: 2d76a9169ec28a044ad42c2be7b2bbce, type: 3}
+  collisionLayer:
+    serializedVersion: 2
+    m_Bits: 72
   state: 0
 --- !u!114 &8567639656653478631
 MonoBehaviour:

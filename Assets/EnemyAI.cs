@@ -1,5 +1,5 @@
-using System.Runtime.ExceptionServices;
-using JetBrains.Annotations;
+using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 using UnityEngine.Audio;
 
@@ -97,8 +97,19 @@ public class EnemyAI : MonoBehaviour
         {
             var ray = controller.FacingDirection() * viewDistance;
             Debug.DrawRay(transform.position, ray, Color.red);
-            var hit = Physics2D.Raycast(transform.position, ray, viewDistance);
-            if (hit.transform.CompareTag("Player"))
+
+            var noFilter = new ContactFilter2D().NoFilter();
+            List<RaycastHit2D> results = new();
+
+            Physics2D.Raycast(transform.position, ray, noFilter, results);
+
+            if (results.Count == 0) return;
+
+            var orderedResult = results.OrderBy(r => r.distance).ToList();
+
+            RaycastHit2D closestObject = results.OrderBy(r => r.distance).First();
+
+            if (closestObject.collider.CompareTag("Player"))
             {
                 audioSource.PlayOneShot(alarmSound);
                 state = State.SeeingPlayer;

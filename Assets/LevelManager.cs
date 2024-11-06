@@ -1,5 +1,6 @@
 using System.Collections;
 using UnityEngine;
+using UnityEngine.Audio;
 using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
@@ -7,16 +8,20 @@ public class LevelManager : MonoBehaviour
     [SerializeField]
     float fadeOutTime = 2f;
 
+    AudioSource audioSource;
+
     FadeOut fadeOut;
 
     private void Awake()
     {
+        audioSource = GetComponent<AudioSource>();
         fadeOut = FindFirstObjectByType<FadeOut>();
     }
 
     private void Start()
     {
         fadeOut.TriggerFadeIn();
+        audioSource.Play();
     }
 
     public void LostLevel()
@@ -31,6 +36,7 @@ public class LevelManager : MonoBehaviour
 
     IEnumerator RestartLevel()
     {
+        audioSource.Stop();
         yield return new WaitForSeconds(1f);
         fadeOut.TriggerFadeOut();
         yield return new WaitForSeconds(1f);
@@ -39,6 +45,7 @@ public class LevelManager : MonoBehaviour
 
     IEnumerator LoadNextLevel()
     {
+        audioSource.Stop();
         yield return new WaitForSeconds(1f);
         // Play victory sound
         fadeOut.TriggerFadeOut();
