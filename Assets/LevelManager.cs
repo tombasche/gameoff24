@@ -37,7 +37,8 @@ public class LevelManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
         fadeOut.TriggerFadeOut();
         yield return new WaitForSeconds(1f);
-        SceneManager.LoadScene(0);
+        int thisLevel = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(thisLevel);
     }
 
     IEnumerator LoadNextLevel()
@@ -49,7 +50,7 @@ public class LevelManager : MonoBehaviour
         yield return new WaitForSeconds(1f);
         
         // TODO check if last level and get next scene
-        // int currentScene = SceneManager.GetActiveScene().buildIndex;
-        SceneManager.LoadScene(0);
+        int thisLevel = SceneManager.GetActiveScene().buildIndex;
+        SceneManager.LoadScene(thisLevel + 1);
     }
 }
