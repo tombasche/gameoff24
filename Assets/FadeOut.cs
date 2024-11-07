@@ -21,7 +21,6 @@ public class FadeOut : MonoBehaviour
 
     public void TriggerFadeIn()
     {
-        // TODO I got confused at some point?
         animator.SetTrigger("StartFadeIn");
         audioSource.PlayOneShot(fadeOutClip);
     }
@@ -30,6 +29,5 @@ public class FadeOut : MonoBehaviour
     {
         animator.SetTrigger("StartFadeOut");
         audioSource.PlayOneShot(fadeInClip);
-
     }
 }

@@ -1,7 +1,6 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using UnityEngine.Audio;
 
 public class EnemyAI : MonoBehaviour
 {
@@ -10,7 +9,9 @@ public class EnemyAI : MonoBehaviour
     float pauseTimer = 0f;
 
     [SerializeField]
-    Transform[] movementNodes;
+    Transform pathNodesParent;
+
+    Node[] movementNodes;
 
     EnemyController controller;
 
@@ -51,6 +52,9 @@ public class EnemyAI : MonoBehaviour
         controller = GetComponent<EnemyController>();
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
+
+        movementNodes = pathNodesParent.GetComponentsInChildren<Node>();
+
         SetInitialPositionToFirstNode();
     }
 
@@ -61,7 +65,7 @@ public class EnemyAI : MonoBehaviour
 
     void SetInitialPositionToFirstNode()
     {
-        transform.position = movementNodes[0].position;
+        transform.position = movementNodes[0].transform.position;
     }
 
     private void Update()
@@ -82,14 +86,14 @@ public class EnemyAI : MonoBehaviour
         return nextNodeIdx;
     }
 
-    Vector3 NextNode(int currentNode)
+    Node NextNode(int currentNode)
     {
         int idx = NextNodeIdx(currentNode);
-        return movementNodes[idx].position;
+        return movementNodes[idx];
     }
 
-    bool IsCloseToPosition(Vector3 position) => 
-        Vector3.Distance(transform.position, position) <= distanceToNodeThreshold;
+    bool IsCloseToPosition(Node n) => 
+        Vector3.Distance(transform.position, n.transform.position) <= distanceToNodeThreshold;
 
     void LookForPlayer()
     {
@@ -122,23 +126,25 @@ public class EnemyAI : MonoBehaviour
         if (state == State.Patrolling)
         {
             exclamationMark.gameObject.SetActive(false);
-            Vector3 currentNode = movementNodes[currentNodeIdx].position;
-            Vector3 nextNode = NextNode(currentNodeIdx);
+            Node currentNode = movementNodes[currentNodeIdx];
+            Node nextNode = NextNode(currentNodeIdx);
 
             if (IsCloseToPosition(nextNode))
             {
-                controller.Movement(Vector2.zero);
-                pauseTimer += Time.deltaTime;
-
-                if (pauseTimer >= nodePauseTime)
+                if (nextNode.GetShouldPause())
                 {
-                    pauseTimer = 0f;
+                    PauseOnNode();
+                }
+                else
+                {
                     currentNodeIdx = NextNodeIdx(currentNodeIdx);
                 }
             }
             else
             {
-                Vector2 difference = (nextNode - currentNode).normalized;
+                var nextNodePos = nextNode.transform.position;
+                var currentNodePos = currentNode.transform.position;
+                Vector2 difference = (nextNodePos - currentNodePos).normalized;
                 controller.Movement(difference);
             }
         }
@@ -161,6 +167,18 @@ public class EnemyAI : MonoBehaviour
             runningAnimation = true;
             animator.SetTrigger("Surprised");
             FindFirstObjectByType<LevelManager>().LostLevel();
+        }
+    }
+
+    void PauseOnNode()
+    {
+        controller.Movement(Vector2.zero);
+        pauseTimer += Time.deltaTime;
+
+        if (pauseTimer >= nodePauseTime)
+        {
+            pauseTimer = 0f;
+            currentNodeIdx = NextNodeIdx(currentNodeIdx);
         }
     }
 }
