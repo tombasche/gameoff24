@@ -25,6 +25,9 @@ public class EnemyAI : MonoBehaviour
     float viewDistance = 10f;
 
     [SerializeField]
+    float soundRadius = 2f; // if you're moving next to them
+
+    [SerializeField]
     Transform exclamationMark;
 
     [SerializeField]
@@ -34,6 +37,8 @@ public class EnemyAI : MonoBehaviour
 
     bool runningAnimation = false;
     Animator animator;
+
+    PlayerController playerController;
 
     public enum State
     {
@@ -52,6 +57,8 @@ public class EnemyAI : MonoBehaviour
         controller = GetComponent<EnemyController>();
         animator = GetComponent<Animator>();
         audioSource = GetComponent<AudioSource>();
+
+        playerController = FindFirstObjectByType<PlayerController>();
 
         movementNodes = pathNodesParent.GetComponentsInChildren<Node>();
 
@@ -109,16 +116,58 @@ public class EnemyAI : MonoBehaviour
 
             if (results.Count == 0) return;
 
-            var orderedResult = results.OrderBy(r => r.distance).ToList();
-
             RaycastHit2D closestObject = results.OrderBy(r => r.distance).First();
 
+            // We found the player object
             if (closestObject.collider.CompareTag("Player"))
             {
-                audioSource.PlayOneShot(alarmSound);
-                state = State.SeeingPlayer;
+                // Now are they hidden?
+                if (!closestObject.collider.GetComponent<PlayerHiding>().IsHidden())
+                {
+                    SoundTheAlarm();
+                }
+            }
+
+            if (PlayerMovingNearby())
+            {
+                SoundTheAlarm();
             }
         }
+    }
+
+    bool PlayerMovingNearby()
+    {
+        if (!playerController.IsMoving()) return false;
+
+        var playerPosition = playerController.transform.position;
+
+        bool playerMovingNearby = Vector2.Distance(transform.position, playerPosition) < soundRadius;
+
+        if (!playerMovingNearby) return false;
+
+        // If the player _is_ moving nearby, draw a line from the enemy to the player
+        // and see if there's a wall blocking at least so they can't "see" the player move
+        var ray = (playerPosition - transform.position).normalized;
+        Debug.DrawRay(transform.position, ray, Color.blue);
+
+        var noFilter = new ContactFilter2D().NoFilter();
+        List<RaycastHit2D> results = new();
+
+        Physics2D.Raycast(transform.position, ray, noFilter, results);
+
+        RaycastHit2D closestObject = results.OrderBy(r => r.distance).First();
+        if (closestObject.collider.CompareTag("Player") && playerMovingNearby)
+        {
+            return true;
+        }
+
+        return false;
+    }
+
+    void SoundTheAlarm()
+    {
+        audioSource.PlayOneShot(alarmSound);
+        state = State.SeeingPlayer;
     }
 
     void HandleState()

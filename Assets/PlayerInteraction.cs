@@ -13,6 +13,8 @@ public class PlayerInteraction : MonoBehaviour
 
     PlayerControls playerControls;
 
+    Switch switchInFrontOf = null;
+
     public static event Action OnPCClicked;
     private void Awake()
     {
@@ -36,6 +38,12 @@ public class PlayerInteraction : MonoBehaviour
         {
             inFrontOfPC = true;
         }
+
+        if (collision.CompareTag("Switch") && switchInFrontOf == null)
+        {
+            switchInFrontOf = collision.gameObject.GetComponent<Switch>();
+        }
+
     }
 
     private void OnTriggerExit2D(Collider2D collision)
@@ -43,6 +51,11 @@ public class PlayerInteraction : MonoBehaviour
         if (collision.CompareTag("Computer") && inFrontOfPC)
         {
             inFrontOfPC = false;
+        }
+
+        if (collision.CompareTag("Switch") && switchInFrontOf != null)
+        {
+            switchInFrontOf = null;
         }
     }
 
@@ -52,6 +65,11 @@ public class PlayerInteraction : MonoBehaviour
         {
             audioSource.PlayOneShot(startPCSound);
             OnPCClicked?.Invoke();
+        }
+
+        if (switchInFrontOf != null && playerControls.Player.Interact.WasPressedThisFrame())
+        {
+            switchInFrontOf.Activate();
         }
     }
 }

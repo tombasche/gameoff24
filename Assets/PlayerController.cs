@@ -1,3 +1,4 @@
+using System;
 using UnityEngine;
 
 public class PlayerController : MonoBehaviour
@@ -7,6 +8,8 @@ public class PlayerController : MonoBehaviour
 
     Animator animator;
     Vector2 idlePosition;
+
+    PlayerHiding playerHiding;
     Rigidbody2D rb;
     [SerializeField]
     float moveSpeed = 1f;
@@ -14,6 +17,7 @@ public class PlayerController : MonoBehaviour
     private void Awake()
     {
         animator = GetComponent<Animator>();
+        playerHiding = GetComponent<PlayerHiding>();
         rb = GetComponent<Rigidbody2D>();
         controls = new PlayerControls();
     }
@@ -37,7 +41,16 @@ public class PlayerController : MonoBehaviour
 
     void PlayerInput()
     {
-        movement = controls.Player.Movement.ReadValue<Vector2>();
+        if (playerHiding.IsHidden())
+        {
+            movement = Vector2.zero;
+        }
+        else
+        {
+            movement = controls.Player.Movement.ReadValue<Vector2>();
+        }
+
+
         if (movement == Vector2.zero)
         {
             AnimateIdle();
@@ -81,4 +94,5 @@ public class PlayerController : MonoBehaviour
         Move();
     }
 
+    public bool IsMoving() => movement != Vector2.zero;
 }
