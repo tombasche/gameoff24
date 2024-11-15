@@ -10,9 +10,11 @@ public class PlayerHiding : MonoBehaviour
     bool isHidden = false;
 
     PlayerControls playerControls;
+    SpriteRenderer sr;
 
     private void Awake()
     {
+        sr = GetComponent<SpriteRenderer>();
         playerControls = new PlayerControls();
         animator = GetComponent<Animator>();
     }
@@ -64,6 +66,9 @@ public class PlayerHiding : MonoBehaviour
         {
             animator.SetBool("isHiding", true);
             isHidden = true;
+            Color c = sr.color;
+            c.a = 0.65f;
+            sr.color = c;
         }
 
     }
@@ -71,6 +76,9 @@ public class PlayerHiding : MonoBehaviour
     {
         animator.SetBool("isHiding", false);
         isHidden = false;
+        Color c = sr.color;
+        c.a = 1f;
+        sr.color = c;
     }
     public bool IsHidden() => isHidden;
 }

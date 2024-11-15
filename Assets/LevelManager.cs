@@ -4,21 +4,17 @@ using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour
 {
-
-    AudioSource audioSource;
-
     FadeOut fadeOut;
 
     private void Awake()
     {
-        audioSource = GetComponent<AudioSource>();
         fadeOut = FindFirstObjectByType<FadeOut>();
     }
 
     private void Start()
     {
         fadeOut.TriggerFadeIn();
-        audioSource.Play();
+        BackgroundMusic.Instance.StartMusic();
     }
 
     public void LostLevel()
@@ -33,7 +29,7 @@ public class LevelManager : MonoBehaviour
 
     IEnumerator RestartLevel()
     {
-        audioSource.Stop();
+        BackgroundMusic.Instance.StopMusic();
         yield return new WaitForSeconds(1f);
         fadeOut.TriggerFadeOut();
         yield return new WaitForSeconds(1f);
@@ -43,7 +39,7 @@ public class LevelManager : MonoBehaviour
 
     IEnumerator LoadNextLevel()
     {
-        audioSource.Stop();
+        BackgroundMusic.Instance.StopMusic();
         yield return new WaitForSeconds(1f);
         // Play victory sound
         fadeOut.TriggerFadeOut();
